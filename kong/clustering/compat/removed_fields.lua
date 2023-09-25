@@ -100,6 +100,9 @@ return {
   [3005000000] = {
     cors = {
       "private_network",
+    },
+    hmac_auth = {
+      "public_key",
     }
-  }
+  },
 }
