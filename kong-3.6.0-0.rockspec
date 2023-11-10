@@ -70,6 +70,7 @@ build = {
 
     ["kong.clustering"] = "kong/clustering/init.lua",
     ["kong.clustering.data_plane"] = "kong/clustering/data_plane.lua",
+    ["kong.clustering.protocol"] = "kong/clustering/protocol.lua",
     ["kong.clustering.control_plane"] = "kong/clustering/control_plane.lua",
     ["kong.clustering.utils"] = "kong/clustering/utils.lua",
     ["kong.clustering.events"] = "kong/clustering/events.lua",
@@ -77,7 +78,6 @@ build = {
     ["kong.clustering.compat.version"] = "kong/clustering/compat/version.lua",
     ["kong.clustering.compat.removed_fields"] = "kong/clustering/compat/removed_fields.lua",
     ["kong.clustering.compat.checkers"] = "kong/clustering/compat/checkers.lua",
-    ["kong.clustering.config_helper"] = "kong/clustering/config_helper.lua",
     ["kong.clustering.tls"] = "kong/clustering/tls.lua",
 
     ["kong.cluster_events"] = "kong/cluster_events/init.lua",
@@ -100,6 +100,8 @@ build = {
 
     ["kong.resty.mlcache"] = "kong/resty/mlcache/init.lua",
     ["kong.resty.mlcache.ipc"] = "kong/resty/mlcache/ipc.lua",
+
+    ["kong.resty.lmdb.reset-transaction"] = "kong/resty/lmdb/reset-transaction.lua",
 
     ["kong.cmd"] = "kong/cmd/init.lua",
     ["kong.cmd.roar"] = "kong/cmd/roar.lua",
