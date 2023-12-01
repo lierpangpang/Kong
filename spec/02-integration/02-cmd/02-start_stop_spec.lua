@@ -40,12 +40,14 @@ local function wait_until_healthy(prefix)
 
   local conf = assert(helpers.get_running_conf(prefix))
 
+  local runtime_data_path = conf.runtime_data_path
+
   if conf.proxy_listen and conf.proxy_listen ~= "off" then
-    helpers.wait_for_file("socket", prefix .. "/worker_events.sock")
+    helpers.wait_for_file("socket", runtime_data_path .. "/worker_events.sock")
   end
 
   if conf.stream_listen and conf.stream_listen ~= "off" then
-    helpers.wait_for_file("socket", prefix .. "/stream_worker_events.sock")
+    helpers.wait_for_file("socket", runtime_data_path .. "/stream_worker_events.sock")
   end
 
   if conf.admin_listen and conf.admin_listen ~= "off" then
@@ -717,7 +719,7 @@ describe("kong start/stop #" .. strategy, function()
     local pidfile = TEST_CONF.nginx_pid
 
     -- the worker events socket is just one of many unix sockets we use
-    local event_sock = PREFIX .. "/worker_events.sock"
+    local event_sock = TEST_CONF.runtime_data_path .. "/worker_events.sock"
 
     local env = {
       prefix                      = PREFIX,
@@ -809,11 +811,11 @@ describe("kong start/stop #" .. strategy, function()
              "events socket (" .. event_sock .. ") unexpectedly removed")
     end)
 
-    it("removes unix socket files in the prefix directory", function()
+    it("removes unix socket files in the runtime (/var/run/kong/) directory", function()
       local _, stderr = assert_start()
 
-      assert.matches("[warn] Found dangling unix sockets in the prefix directory", stderr, nil, true)
-      assert.matches(PREFIX, stderr, nil, true)
+      assert.matches("[warn] Found dangling unix sockets in the runtime directory", stderr, nil, true)
+      assert.matches(helpers.get_runtime_data_path(PREFIX), stderr, nil, true)
 
       assert.matches("removing unix socket", stderr)
       assert.matches(event_sock, stderr, nil, true)
@@ -827,7 +829,7 @@ describe("kong start/stop #" .. strategy, function()
       local stdout, stderr = assert_start()
 
       assert.not_matches("prefix directory .*not found", stdout)
-      assert.not_matches("[warn] Found dangling unix sockets in the prefix directory", stderr, nil, true)
+      assert.not_matches("[warn] Found dangling unix sockets in the runtime directory", stderr, nil, true)
       assert.not_matches("unix socket", stderr)
     end)
 
@@ -877,11 +879,12 @@ describe("kong start/stop #" .. strategy, function()
 
       assert.truthy(started, "starting Kong failed: " .. tostring(err))
 
+      local conf = assert(helpers.get_running_conf(prefix))
       -- wait until everything is running
       wait_until_healthy(prefix)
 
-      assert.truthy(helpers.path.exists(prefix .. "/worker_events.sock"))
-      assert.truthy(helpers.path.exists(prefix .. "/stream_worker_events.sock"))
+      assert.truthy(helpers.path.exists(conf.runtime_data_path .. "/worker_events.sock"))
+      assert.truthy(helpers.path.exists(conf.runtime_data_path .. "/stream_worker_events.sock"))
 
       local log = prefix .. "/logs/error.log"
       assert.logfile(log).has.no.line("[error]", true, 0)
